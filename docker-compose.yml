@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ./server-main  # Diretório de contexto de build para o serviço do servidor
+    ports:
+      - "5004:5004"  # Mapeamento da porta 5004 do container para a porta 5004 do host
+    environment:
+      - FLASK_ENV=development  # Definir variável de ambiente para o Flask
+    volumes:
+      - ./server-main:/app  # Montar o diretório local server-main no diretório /app do container
+    depends_on:
+      - db  # Este serviço depende do serviço de banco de dados
+
+  client:
+    build:
+      context: ./client-main  # Diretório de contexto de build para o serviço do cliente
+    ports:
+      - "5173:5173"  # Mapeamento da porta 5173 do container para a porta 5173 do host
+    volumes:
+      - ./client-main:/app  # Montar o diretório local client-main no diretório /app do container
+    environment:
+      - VUE_APP_API_URL=http://localhost:5004  # Definir variável de ambiente para a URL da API
+
+  db:
+    image: postgres:13  # Imagem do PostgreSQL
+    environment:
+      POSTGRES_USER: user  # Definir usuário do PostgreSQL
+      POSTGRES_PASSWORD: password  # Definir senha do PostgreSQL
+      POSTGRES_DB: books  # Definir nome do banco de dados do PostgreSQL
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Montar o volume para persistência de dados do PostgreSQL
+
+volumes:
+  pgdata:  # Volume nomeado para persistência de dados do PostgreSQL
